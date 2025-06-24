@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>肥牛老师课堂随机抽查</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'KaiTi', serif;
+      background: url('background.jpg') no-repeat center center fixed;
+      background-size: cover;
+      color: #000;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 48px;
+      margin-top: 20px;
+      font-family: "KaiTi", serif;
+      color: black;
+    }
+
+    .roller-container {
+      margin: 40px auto;
+      width: 60%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 64px;
+      font-weight: bold;
+    }
+
+    .boxed {
+      background-color: rgba(255, 255, 255, 0.8);
+      border: 3px solid #333;
+      border-radius: 15px;
+      padding: 20px 40px;
+    }
+
+    .student-number {
+      flex: 4;
+      text-align: right;
+      padding-right: 20px;
+    }
+
+    .vocab-word {
+      flex: 6;
+      text-align: left;
+      padding-left: 20px;
+    }
+
+    .controls {
+      margin-top: 40px;
+    }
+
+    button {
+      font-size: 20px;
+      padding: 10px 20px;
+      margin: 10px;
+      cursor: pointer;
+    }
+
+    input[type=range], input[type=number] {
+      width: 300px;
+      margin-left: 20px;
+    }
+
+    #vocabMeaning {
+      margin-top: 20px;
+      font-size: 28px;
+      font-weight: normal;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <h1>肥牛老师课堂随机抽查</h1>
+  <div class="roller-container">
+    <div class="student-number boxed" id="studentNumber">001</div>
+    <div class="vocab-word boxed" id="vocabWord">valuable</div>
+  </div>
+  <div id="vocabMeaning">点击下方按钮显示中文意思</div>
+
+  <div class="controls">
+    <div>
+      <label>学号范围：</label>
+      <input type="number" id="minNum" value="1" min="1" max="999"> 到
+      <input type="number" id="maxNum" value="50" min="1" max="999">
+    </div>
+    <div>
+      <button onclick="toggleRoll('number')">随机学号</button>
+      <button onclick="toggleRoll('word')">随机单词</button>
+      <button onclick="showMeaning()">显示中文意思</button>
+    </div>
+    <div>
+      <label for="speed">滚动速度：</label>
+      <input type="range" id="speed" min="1" max="100" value="50">
+    </div>
+  </div>
+
+  <audio id="rollSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_206cb78e60.mp3?filename=pop-94319.mp3"></audio>
+
+  <script>
+    const vocabDict = {
+      "directly": "直接地",
+      "valuable": "有价值的",
+      "support": "支持",
+      "store": "储存",
+      "respect": "尊重",
+      "focus": "聚焦",
+      "affect": "影响",
+      "spread": "传播",
+      "original": "原始的",
+      "gather": "聚集",
+      "replace": "替换",
+      "greedy": "贪婪的",
+      "suppose": "假设",
+      "official": "正式的",
+      "remove": "移除",
+      "consume": "消耗",
+      "urgent": "紧急的",
+      "reflect": "反映",
+      "feature": "特征",
+      "ancient": "古代的",
+      "historical": "历史的",
+      "shoulder": "肩膀",
+      "decade": "十年",
+      "debate": "辩论",
+      "specific": "具体的",
+      "ancestor": "祖先",
+      "previous": "先前的",
+      "absorb": "吸收",
+      "attach": "附加",
+      "political": "政治的",
+      "background": "背景",
+      "combine": "结合",
+      "moral": "道德的",
+      "defend": "护卫",
+      "significant": "重要的",
+      "fascinate": "使着迷",
+      "pile": "堆积",
+      "consist": "组成",
+      "crisis": "危机",
+      "foundation": "基础",
+      "absence": "缺席",
+      "universal": "普遍的",
+      "compose": "组成",
+      "fantasy": "幻想",
+      "distinct": "独特的",
+      "cancel": "取消",
+      "correspond": "对应",
+      "symptom": "症状",
+      "annual": "每年的",
+      "antique": "古董的",
+      "tight": "紧的",
+      "giant": "巨大的",
+      "permanent": "永久的",
+      "reform": "改革",
+      "clarify": "澄清",
+      "transfer": "转移",
+      "shrink": "收缩",
+      "accustom": "使习惯",
+      "summarize": "总结",
+      "reverse": "反转",
+      "prosperity": "繁荣",
+      "resemble": "相似",
+      "notorious": "臭名昭著的",
+      "exclude": "排除",
+      "sting": "刺痛",
+      "democratic": "民主的",
+      "abnormal": "异常的",
+      "cherish": "珍惜",
+      "heighten": "提高",
+      "lighten": "减轻",
+      "delete": "删除"
+    };
+
+    const vocabWords = Object.keys(vocabDict);
+    let rollingInterval = null;
+    let rolling = { number: false, word: false };
+
+    function playSound() {
+      const sound = document.getElementById("rollSound");
+      sound.currentTime = 0;
+      sound.play();
+    }
+
+    function toggleRoll(type) {
+      if (rolling[type]) {
+        clearInterval(rollingInterval);
+        rolling[type] = false;
+        return;
+      }
+
+      const speed = document.getElementById("speed").value;
+      const delay = 200 - speed * 1.8;
+
+      rolling[type] = true;
+      rollingInterval = setInterval(() => {
+        playSound();
+
+        if (type === 'number') {
+          const min = parseInt(document.getElementById("minNum").value);
+          const max = parseInt(document.getElementById("maxNum").value);
+          const student = Math.floor(Math.random() * (max - min + 1)) + min;
+          document.getElementById("studentNumber").innerText = student.toString().padStart(3, '0');
+        } else if (type === 'word') {
+          const word = vocabWords[Math.floor(Math.random() * vocabWords.length)];
+          document.getElementById("vocabWord").innerText = word;
+          document.getElementById("vocabMeaning").innerText = "点击下方按钮显示中文意思";
+        }
+      }, delay);
+    }
+
+    function showMeaning() {
+      const word = document.getElementById("vocabWord").innerText;
+      const meaning = vocabDict[word] || "（暂无词义）";
+      document.getElementById("vocabMeaning").innerText = word + "：" + meaning;
+    }
+  </script>
+</body>
+</html>
