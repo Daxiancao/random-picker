@@ -174,21 +174,22 @@
     }
 
     function loadWordFileList() {
-      fetch("words/index.json")
-        .then(res => res.json())
-        .then(files => {
-          const select = document.getElementById("vocabSelect");
-          files.forEach(file => {
-            const option = document.createElement("option");
-            option.value = file;
-            option.innerText = file;
-            select.appendChild(option);
-          });
-        })
-        .catch(() => {
-          alert("无法读取词库列表 index.json。请确认文件存在并格式正确。");
-        });
-    }
+    fetch("words/index.json")
+    .then(res => res.json())
+    .then(files => {
+      const select = document.getElementById("vocabSelect");
+      files.forEach(file => {
+        const option = document.createElement("option");
+        option.value = file; // 选项的值依然是完整的文件名，用于后续加载
+        // 去除 .json 后缀并设置为显示文本
+        option.innerText = file.replace('.json', '');
+        select.appendChild(option);
+      });
+    })
+    .catch(() => {
+      alert("无法读取词库列表 index.json。请确认文件存在并格式正确。");
+    });
+}
 
     window.onload = loadWordFileList;
   </script>
