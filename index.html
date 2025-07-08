@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh">
+
 <head>
   <meta charset="UTF-8">
   <title>肥牛老师课堂随机抽查</title>
@@ -23,31 +24,37 @@
 
     .roller-container {
       margin: 40px auto;
-      width: 60%;
       display: flex;
       justify-content: center;
       align-items: center;
       font-size: 64px;
       font-weight: bold;
+      gap: 20px;
     }
 
     .boxed {
       background-color: rgba(255, 255, 255, 0.8);
       border: 3px solid #333;
       border-radius: 15px;
-      padding: 20px 40px;
+      padding: 20px;
+      box-sizing: border-box;
     }
 
     .student-number {
-      flex: 4;
+      width: 250px;
       text-align: right;
+      padding-left: 30px;
       padding-right: 20px;
+      margin-right: 50px;
     }
 
     .vocab-word {
-      flex: 6;
-      text-align: left;
+      width: 450px;
+      text-align: center;
       padding-left: 20px;
+      padding-right: 30px;
+      word-wrap: break-word;
+      font-size: clamp(24px, 3.5vw, 64px);
     }
 
     .controls {
@@ -61,9 +68,13 @@
       cursor: pointer;
     }
 
-    input[type=range], input[type=number], select {
-      width: 300px;
+    input[type=range],
+    input[type=number],
+    select {
+      width: 500px;
+      height: 30px;
       margin-left: 20px;
+      font-size: 18px;
     }
 
     #vocabMeaning {
@@ -74,6 +85,7 @@
     }
   </style>
 </head>
+
 <body>
   <h1>肥牛老师课堂随机抽查</h1>
   <div class="roller-container">
@@ -105,23 +117,24 @@
     </div>
   </div>
 
-  <audio id="rollSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_206cb78e60.mp3?filename=pop-94319.mp3"></audio>
-
   <script>
     let vocabDict = {};
     let vocabWords = [];
-    let rollingInterval = null;
+    let rollingInterval = { number: null, word: null };
     let rolling = { number: false, word: false };
 
+    // playSound 函数已移除
+    /*
     function playSound() {
       const sound = document.getElementById("rollSound");
       sound.currentTime = 0;
       sound.play();
     }
+    */
 
     function toggleRoll(type) {
       if (rolling[type]) {
-        clearInterval(rollingInterval);
+        clearInterval(rollingInterval[type]);
         rolling[type] = false;
         return;
       }
@@ -134,9 +147,23 @@
       const speed = document.getElementById("speed").value;
       const delay = 200 - speed * 1.8;
 
+      if (type === 'number') {
+        const min = parseInt(document.getElementById("minNum").value);
+        const max = parseInt(document.getElementById("maxNum").value);
+
+        if (isNaN(min) || isNaN(max) || min < 1 || max < 1) {
+          alert("学号范围必须是大于等于1的有效数字。");
+          return;
+        }
+        if (min > max) {
+          alert("学号最小值不能大于最大值。");
+          return;
+        }
+      }
+
       rolling[type] = true;
-      rollingInterval = setInterval(() => {
-        playSound();
+      rollingInterval[type] = setInterval(() => {
+        // playSound(); // playSound 调用已移除
 
         if (type === 'number') {
           const min = parseInt(document.getElementById("minNum").value);
@@ -159,39 +186,58 @@
 
     function loadSelectedWordFile() {
       const selected = document.getElementById("vocabSelect").value;
-      if (!selected) return;
+      if (!selected) {
+        document.getElementById("vocabWord").innerText = "-";
+        document.getElementById("vocabMeaning").innerText = "点击下方按钮显示中文意思";
+        return;
+      }
 
       fetch("words/" + selected)
-        .then(res => res.json())
+        .then(res => {
+          if (!res.ok) {
+            throw new Error('网络响应不佳或文件未找到');
+          }
+          return res.json();
+        })
         .then(data => {
           vocabDict = data;
           vocabWords = Object.keys(data);
           alert("词库加载成功，共 " + vocabWords.length + " 个单词。");
+
+          if (vocabWords.length > 0) {
+            const word = vocabWords[0];
+            document.getElementById("vocabWord").innerText = word;
+            document.getElementById("vocabMeaning").innerText = "点击下方按钮显示中文意思";
+          } else {
+            document.getElementById("vocabWord").innerText = "-";
+            document.getElementById("vocabMeaning").innerText = "该词库没有单词。";
+          }
         })
-        .catch(() => {
+        .catch(error => {
+          console.error("加载词库失败:", error);
           alert("加载词库失败，请检查文件是否存在或格式是否正确。");
         });
     }
 
     function loadWordFileList() {
-    fetch("words/index.json")
-    .then(res => res.json())
-    .then(files => {
-      const select = document.getElementById("vocabSelect");
-      files.forEach(file => {
-        const option = document.createElement("option");
-        option.value = file; // 选项的值依然是完整的文件名，用于后续加载
-        // 去除 .json 后缀并设置为显示文本
-        option.innerText = file.replace('.json', '');
-        select.appendChild(option);
-      });
-    })
-    .catch(() => {
-      alert("无法读取词库列表 index.json。请确认文件存在并格式正确。");
-    });
-}
+      fetch("words/index.json")
+        .then(res => res.json())
+        .then(files => {
+          const select = document.getElementById("vocabSelect");
+          files.forEach(file => {
+            const option = document.createElement("option");
+            option.value = file;
+            option.innerText = file.replace('.json', '');
+            select.appendChild(option);
+          });
+        })
+        .catch(() => {
+          alert("无法读取词库列表 index.json。请确认文件存在并格式正确。");
+        });
+    }
 
     window.onload = loadWordFileList;
   </script>
 </body>
+
 </html>
