@@ -61,7 +61,7 @@
       cursor: pointer;
     }
 
-    input[type=range], input[type=number] {
+    input[type=range], input[type=number], select {
       width: 300px;
       margin-left: 20px;
     }
@@ -71,10 +71,6 @@
       font-size: 28px;
       font-weight: normal;
       color: #333;
-    }
-
-    #fileInput {
-      margin-top: 20px;
     }
   </style>
 </head>
@@ -86,13 +82,14 @@
   </div>
   <div id="vocabMeaning">点击下方按钮显示中文意思</div>
 
-  <div id="fileInput">
-    <label>选择单词 JSON 文件：</label>
-    <input type="file" id="wordFile" accept="application/json" onchange="loadWordsFromFile(this)">
-  </div>
-
   <div class="controls">
     <div>
+      <label>选择词库：</label>
+      <select id="vocabSelect" onchange="loadSelectedWordFile()">
+        <option value="">-- 请选择 --</option>
+      </select>
+    </div>
+    <div style="margin-top: 20px;">
       <label>学号范围：</label>
       <input type="number" id="minNum" value="1" min="1" max="999"> 到
       <input type="number" id="maxNum" value="50" min="1" max="999">
@@ -130,7 +127,7 @@
       }
 
       if (type === 'word' && vocabWords.length === 0) {
-        alert("请先选择并加载单词 JSON 文件。");
+        alert("请先选择词库。");
         return;
       }
 
@@ -160,22 +157,40 @@
       document.getElementById("vocabMeaning").innerText = word + "：" + meaning;
     }
 
-    function loadWordsFromFile(input) {
-      const file = input.files[0];
-      if (!file) return;
+    function loadSelectedWordFile() {
+      const selected = document.getElementById("vocabSelect").value;
+      if (!selected) return;
 
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        try {
-          vocabDict = JSON.parse(e.target.result);
-          vocabWords = Object.keys(vocabDict);
-          alert("单词文件加载成功，包含 " + vocabWords.length + " 个单词。");
-        } catch (err) {
-          alert("单词文件格式错误，请确保是有效的 JSON 格式。");
-        }
-      };
-      reader.readAsText(file);
+      fetch("words/" + selected)
+        .then(res => res.json())
+        .then(data => {
+          vocabDict = data;
+          vocabWords = Object.keys(data);
+          alert("词库加载成功，共 " + vocabWords.length + " 个单词。");
+        })
+        .catch(() => {
+          alert("加载词库失败，请检查文件是否存在或格式是否正确。");
+        });
     }
+
+    function loadWordFileList() {
+      fetch("words/index.json")
+        .then(res => res.json())
+        .then(files => {
+          const select = document.getElementById("vocabSelect");
+          files.forEach(file => {
+            const option = document.createElement("option");
+            option.value = file;
+            option.innerText = file;
+            select.appendChild(option);
+          });
+        })
+        .catch(() => {
+          alert("无法读取词库列表 index.json。请确认文件存在并格式正确。");
+        });
+    }
+
+    window.onload = loadWordFileList;
   </script>
 </body>
 </html>
