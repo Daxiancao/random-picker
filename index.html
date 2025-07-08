@@ -72,15 +72,24 @@
       font-weight: normal;
       color: #333;
     }
+
+    #fileInput {
+      margin-top: 20px;
+    }
   </style>
 </head>
 <body>
   <h1>肥牛老师课堂随机抽查</h1>
   <div class="roller-container">
     <div class="student-number boxed" id="studentNumber">001</div>
-    <div class="vocab-word boxed" id="vocabWord">valuable</div>
+    <div class="vocab-word boxed" id="vocabWord">-</div>
   </div>
   <div id="vocabMeaning">点击下方按钮显示中文意思</div>
+
+  <div id="fileInput">
+    <label>选择单词 JSON 文件：</label>
+    <input type="file" id="wordFile" accept="application/json" onchange="loadWordsFromFile(this)">
+  </div>
 
   <div class="controls">
     <div>
@@ -102,81 +111,8 @@
   <audio id="rollSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_206cb78e60.mp3?filename=pop-94319.mp3"></audio>
 
   <script>
-    const vocabDict = {
-      "directly": "直接地",
-      "valuable": "有价值的",
-      "support": "支持",
-      "store": "储存",
-      "respect": "尊重",
-      "focus": "聚焦",
-      "affect": "影响",
-      "spread": "传播",
-      "original": "原始的",
-      "gather": "聚集",
-      "replace": "替换",
-      "greedy": "贪婪的",
-      "suppose": "假设",
-      "official": "正式的",
-      "remove": "移除",
-      "consume": "消耗",
-      "urgent": "紧急的",
-      "reflect": "反映",
-      "feature": "特征",
-      "ancient": "古代的",
-      "historical": "历史的",
-      "shoulder": "肩膀",
-      "decade": "十年",
-      "debate": "辩论",
-      "specific": "具体的",
-      "ancestor": "祖先",
-      "previous": "先前的",
-      "absorb": "吸收",
-      "attach": "附加",
-      "political": "政治的",
-      "background": "背景",
-      "combine": "结合",
-      "moral": "道德的",
-      "defend": "护卫",
-      "significant": "重要的",
-      "fascinate": "使着迷",
-      "pile": "堆积",
-      "consist": "组成",
-      "crisis": "危机",
-      "foundation": "基础",
-      "absence": "缺席",
-      "universal": "普遍的",
-      "compose": "组成",
-      "fantasy": "幻想",
-      "distinct": "独特的",
-      "cancel": "取消",
-      "correspond": "对应",
-      "symptom": "症状",
-      "annual": "每年的",
-      "antique": "古董的",
-      "tight": "紧的",
-      "giant": "巨大的",
-      "permanent": "永久的",
-      "reform": "改革",
-      "clarify": "澄清",
-      "transfer": "转移",
-      "shrink": "收缩",
-      "accustom": "使习惯",
-      "summarize": "总结",
-      "reverse": "反转",
-      "prosperity": "繁荣",
-      "resemble": "相似",
-      "notorious": "臭名昭著的",
-      "exclude": "排除",
-      "sting": "刺痛",
-      "democratic": "民主的",
-      "abnormal": "异常的",
-      "cherish": "珍惜",
-      "heighten": "提高",
-      "lighten": "减轻",
-      "delete": "删除"
-    };
-
-    const vocabWords = Object.keys(vocabDict);
+    let vocabDict = {};
+    let vocabWords = [];
     let rollingInterval = null;
     let rolling = { number: false, word: false };
 
@@ -190,6 +126,11 @@
       if (rolling[type]) {
         clearInterval(rollingInterval);
         rolling[type] = false;
+        return;
+      }
+
+      if (type === 'word' && vocabWords.length === 0) {
+        alert("请先选择并加载单词 JSON 文件。");
         return;
       }
 
@@ -217,6 +158,23 @@
       const word = document.getElementById("vocabWord").innerText;
       const meaning = vocabDict[word] || "（暂无词义）";
       document.getElementById("vocabMeaning").innerText = word + "：" + meaning;
+    }
+
+    function loadWordsFromFile(input) {
+      const file = input.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        try {
+          vocabDict = JSON.parse(e.target.result);
+          vocabWords = Object.keys(vocabDict);
+          alert("单词文件加载成功，包含 " + vocabWords.length + " 个单词。");
+        } catch (err) {
+          alert("单词文件格式错误，请确保是有效的 JSON 格式。");
+        }
+      };
+      reader.readAsText(file);
     }
   </script>
 </body>
