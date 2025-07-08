@@ -2,242 +2,265 @@
 <html lang="zh">
 
 <head>
-  <meta charset="UTF-8">
-  <title>肥牛老师课堂随机抽查</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: 'KaiTi', serif;
-      background: url('background.jpg') no-repeat center center fixed;
-      background-size: cover;
-      color: #000;
-      text-align: center;
-    }
+    <meta charset="UTF-8">
+    <title>肥牛老师课堂随机抽查</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'KaiTi', serif;
+            background: url('background.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: #000;
+            text-align: center;
+        }
 
-    h1 {
-      font-size: 48px;
-      margin-top: 20px;
-      font-family: "KaiTi", serif;
-      color: black;
-    }
+        h1 {
+            font-size: 48px;
+            margin-top: 20px;
+            font-family: "KaiTi", serif;
+            color: black;
+        }
 
-    .roller-container {
-      margin: 40px auto;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 64px;
-      font-weight: bold;
-      gap: 20px;
-    }
+        .roller-container {
+            margin: 40px auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 64px;
+            font-weight: bold;
+            gap: 20px; /* 两个子元素之间的间隔 */
+        }
 
-    .boxed {
-      background-color: rgba(255, 255, 255, 0.8);
-      border: 3px solid #333;
-      border-radius: 15px;
-      padding: 20px;
-      box-sizing: border-box;
-    }
+        .boxed {
+            background-color: rgba(255, 255, 255, 0.8);
+            border: 3px solid #333;
+            border-radius: 15px;
+            padding: 20px; /* 确保 padding 和 border 不会增加元素的总尺寸 */
+            box-sizing: border-box;
+        }
 
-    .student-number {
-      width: 250px;
-      text-align: right;
-      padding-left: 30px;
-      padding-right: 20px;
-      margin-right: 50px;
-    }
+        .student-number {
+            width: 250px;
+            text-align: right;
+            padding-left: 30px;
+            padding-right: 20px;
+            flex-shrink: 0; /* 确保在 flex 容器中不会缩小 */
+        }
 
-    .vocab-word {
-      width: 450px;
-      text-align: center;
-      padding-left: 20px;
-      padding-right: 30px;
-      word-wrap: break-word;
-      font-size: clamp(24px, 3.5vw, 64px);
-    }
+        .vocab-word {
+            width: 450px;
+            height: 117px; /* 调整为与学号框高度一致，约单行文本高度+padding */
+            text-align: center;
+            padding-left: 20px;
+            padding-right: 30px;
+            word-break: break-all; /* 修正: 强制在任意字符处断开，严格防止超出宽度 */
+            flex-shrink: 0; /* 确保在 flex 容器中不会缩小 */
+            font-size: 64px; /* 设定固定初始字体大小，完全依赖 JS 调整 */
+            overflow: hidden; /* 确保在 JS 调整字体前，内容不会短暂溢出 */
+        }
 
-    .controls {
-      margin-top: 40px;
-    }
+        .controls {
+            margin-top: 40px;
+        }
 
-    button {
-      font-size: 20px;
-      padding: 10px 20px;
-      margin: 10px;
-      cursor: pointer;
-    }
+        button {
+            font-size: 20px;
+            padding: 10px 20px;
+            margin: 10px;
+            cursor: pointer;
+        }
 
-    input[type=range],
-    input[type=number],
-    select {
-      width: 500px;
-      height: 30px;
-      margin-left: 20px;
-      font-size: 18px;
-    }
+        input[type=range],
+        input[type=number],
+        select {
+            width: 500px;
+            height: 30px;
+            margin-left: 20px;
+            font-size: 18px;
+        }
 
-    #vocabMeaning {
-      margin-top: 20px;
-      font-size: 28px;
-      font-weight: normal;
-      color: #333;
-    }
-  </style>
+        #vocabMeaning {
+            margin-top: 20px;
+            font-size: 28px;
+            font-weight: normal;
+            color: #333;
+        }
+    </style>
 </head>
 
 <body>
-  <h1>肥牛老师课堂随机抽查</h1>
-  <div class="roller-container">
-    <div class="student-number boxed" id="studentNumber">001</div>
-    <div class="vocab-word boxed" id="vocabWord">-</div>
-  </div>
-  <div id="vocabMeaning">点击下方按钮显示中文意思</div>
-
-  <div class="controls">
-    <div>
-      <label>选择词库：</label>
-      <select id="vocabSelect" onchange="loadSelectedWordFile()">
-        <option value="">-- 请选择 --</option>
-      </select>
+    <h1>肥牛老师课堂随机抽查</h1>
+    <div class="roller-container">
+        <div class="student-number boxed" id="studentNumber">001</div>
+        <div class="vocab-word boxed" id="vocabWord">-</div>
     </div>
-    <div style="margin-top: 20px;">
-      <label>学号范围：</label>
-      <input type="number" id="minNum" value="1" min="1" max="999"> 到
-      <input type="number" id="maxNum" value="50" min="1" max="999">
+    <div id="vocabMeaning">点击下方按钮显示中文意思</div>
+
+    <div class="controls">
+        <div>
+            <label>选择词库：</label>
+            <select id="vocabSelect" onchange="loadSelectedWordFile()">
+                <option value="">-- 请选择 --</option>
+            </select>
+        </div>
+        <div style="margin-top: 20px;">
+            <label>学号范围：</label>
+            <input type="number" id="minNum" value="1" min="1" max="999"> 到
+            <input type="number" id="maxNum" value="50" min="1" max="999">
+        </div>
+        <div>
+            <button id="rollNumberBtn" onclick="toggleRoll('number')">随机学号</button>
+            <button id="rollWordBtn" onclick="toggleRoll('word')">随机单词</button>
+            <button onclick="showMeaning()">显示中文意思</button>
+        </div>
+        <div>
+            <label for="speed">滚动速度：</label>
+            <input type="range" id="speed" min="1" max="100" value="50">
+        </div>
     </div>
-    <div>
-      <button onclick="toggleRoll('number')">随机学号</button>
-      <button onclick="toggleRoll('word')">随机单词</button>
-      <button onclick="showMeaning()">显示中文意思</button>
-    </div>
-    <div>
-      <label for="speed">滚动速度：</label>
-      <input type="range" id="speed" min="1" max="100" value="50">
-    </div>
-  </div>
 
-  <script>
-    let vocabDict = {};
-    let vocabWords = [];
-    let rollingInterval = { number: null, word: null };
-    let rolling = { number: false, word: false };
+    <script>
+        let vocabDict = {};
+        let vocabWords = [];
+        let rollingInterval = { number: null, word: null };
+        let rolling = { number: false, word: false };
 
-    // playSound 函数已移除
-    /*
-    function playSound() {
-      const sound = document.getElementById("rollSound");
-      sound.currentTime = 0;
-      sound.play();
-    }
-    */
+        // 辅助函数：当元素内容发生换行时，动态调整字体大小
+        function adjustFontSizeForWrap(element) {
+            // 首先重置字体大小到CSS默认值，以便重新计算
+            element.style.fontSize = ''; // 清除内联样式，让CSS的固定值生效 (64px)
+            // 获取当前计算出的字体大小
+            let fontSize = parseFloat(window.getComputedStyle(element).fontSize); // 将是 64px
 
-    function toggleRoll(type) {
-      if (rolling[type]) {
-        clearInterval(rollingInterval[type]);
-        rolling[type] = false;
-        return;
-      }
-
-      if (type === 'word' && vocabWords.length === 0) {
-        alert("请先选择词库。");
-        return;
-      }
-
-      const speed = document.getElementById("speed").value;
-      const delay = 200 - speed * 1.8;
-
-      if (type === 'number') {
-        const min = parseInt(document.getElementById("minNum").value);
-        const max = parseInt(document.getElementById("maxNum").value);
-
-        if (isNaN(min) || isNaN(max) || min < 1 || max < 1) {
-          alert("学号范围必须是大于等于1的有效数字。");
-          return;
+            // 循环缩小字体，直到内容不再溢出或达到最小字体（10px）
+            // 由于现在设置了固定的 height，当内容超出 height 时，scrollHeight 会大于 clientHeight，
+            // 此时此循环就会被正确触发来缩小字体。
+            while (element.scrollHeight > element.clientHeight && fontSize > 10) {
+                fontSize -= 1; // 每次减小1px
+                element.style.fontSize = fontSize + 'px'; // 设置新的字体大小
+            }
         }
-        if (min > max) {
-          alert("学号最小值不能大于最大值。");
-          return;
+
+        function toggleRoll(type) {
+            const buttonId = (type === 'number') ? 'rollNumberBtn' : 'rollWordBtn';
+            const button = document.getElementById(buttonId);
+            const originalText = (type === 'number') ? '随机学号' : '随机单词';
+            const stopText = (type === 'number') ? '停止学号' : '停止单词';
+
+            if (rolling[type]) {
+                clearInterval(rollingInterval[type]);
+                rolling[type] = false;
+                button.innerText = originalText; // 停止时，按钮文字恢复
+                return;
+            }
+
+            if (type === 'word' && vocabWords.length === 0) {
+                alert("请先选择词库。");
+                return;
+            }
+
+            const speed = document.getElementById("speed").value;
+            const delay = 200 - speed * 1.8;
+
+            if (type === 'number') {
+                const min = parseInt(document.getElementById("minNum").value);
+                const max = parseInt(document.getElementById("maxNum").value);
+
+                if (isNaN(min) || isNaN(max) || min < 1 || max < 1) {
+                    alert("学号范围必须是大于等于1的有效数字。");
+                    return;
+                }
+                if (min > max) {
+                    alert("学号最小值不能大于最大值。");
+                    return;
+                }
+            }
+
+            rolling[type] = true;
+            button.innerText = stopText; // 启动时，按钮文字变为“停止”
+            rollingInterval[type] = setInterval(() => {
+                if (type === 'number') {
+                    const min = parseInt(document.getElementById("minNum").value);
+                    const max = parseInt(document.getElementById("maxNum").value);
+                    const student = Math.floor(Math.random() * (max - min + 1)) + min;
+                    document.getElementById("studentNumber").innerText = student.toString().padStart(3, '0');
+                } else if (type === 'word') {
+                    const word = vocabWords[Math.floor(Math.random() * vocabWords.length)];
+                    const vocabWordElement = document.getElementById("vocabWord");
+                    vocabWordElement.innerText = word;
+                    document.getElementById("vocabMeaning").innerText = "点击下方按钮显示中文意思";
+                    // 动态调整单词字体大小
+                    adjustFontSizeForWrap(vocabWordElement);
+                }
+            }, delay);
         }
-      }
 
-      rolling[type] = true;
-      rollingInterval[type] = setInterval(() => {
-        // playSound(); // playSound 调用已移除
-
-        if (type === 'number') {
-          const min = parseInt(document.getElementById("minNum").value);
-          const max = parseInt(document.getElementById("maxNum").value);
-          const student = Math.floor(Math.random() * (max - min + 1)) + min;
-          document.getElementById("studentNumber").innerText = student.toString().padStart(3, '0');
-        } else if (type === 'word') {
-          const word = vocabWords[Math.floor(Math.random() * vocabWords.length)];
-          document.getElementById("vocabWord").innerText = word;
-          document.getElementById("vocabMeaning").innerText = "点击下方按钮显示中文意思";
+        function showMeaning() {
+            const word = document.getElementById("vocabWord").innerText;
+            const meaning = vocabDict[word] || "（暂无词义）";
+            document.getElementById("vocabMeaning").innerText = word + "：" + meaning;
+            // 确保显示意思后单词字体大小也正确
+            adjustFontSizeForWrap(document.getElementById("vocabWord"));
         }
-      }, delay);
-    }
 
-    function showMeaning() {
-      const word = document.getElementById("vocabWord").innerText;
-      const meaning = vocabDict[word] || "（暂无词义）";
-      document.getElementById("vocabMeaning").innerText = word + "：" + meaning;
-    }
+        function loadSelectedWordFile() {
+            const selected = document.getElementById("vocabSelect").value;
+            if (!selected) {
+                document.getElementById("vocabWord").innerText = "-";
+                document.getElementById("vocabMeaning").innerText = "点击下方按钮显示中文意思";
+                return;
+            }
 
-    function loadSelectedWordFile() {
-      const selected = document.getElementById("vocabSelect").value;
-      if (!selected) {
-        document.getElementById("vocabWord").innerText = "-";
-        document.getElementById("vocabMeaning").innerText = "点击下方按钮显示中文意思";
-        return;
-      }
+            fetch("words/" + selected)
+                .then(res => {
+                    if (!res.ok) {
+                        throw new Error('网络响应不佳或文件未找到');
+                    }
+                    return res.json();
+                })
+                .then(data => {
+                    vocabDict = data;
+                    vocabWords = Object.keys(data);
+                    alert("词库加载成功，共 " + vocabWords.length + " 个单词。");
 
-      fetch("words/" + selected)
-        .then(res => {
-          if (!res.ok) {
-            throw new Error('网络响应不佳或文件未找到');
-          }
-          return res.json();
-        })
-        .then(data => {
-          vocabDict = data;
-          vocabWords = Object.keys(data);
-          alert("词库加载成功，共 " + vocabWords.length + " 个单词。");
+                    if (vocabWords.length > 0) {
+                        const word = vocabWords[0];
+                        const vocabWordElement = document.getElementById("vocabWord");
+                        vocabWordElement.innerText = word;
+                        document.getElementById("vocabMeaning").innerText = "点击下方按钮显示中文意思";
+                        // 初始加载词库后，调整第一个单词的字体大小
+                        adjustFontSizeForWrap(vocabWordElement);
+                    } else {
+                        document.getElementById("vocabWord").innerText = "-";
+                        document.getElementById("vocabMeaning").innerText = "该词库没有单词。";
+                    }
+                })
+                .catch(error => {
+                    console.error("加载词库失败:", error);
+                    alert("加载词库失败，请检查文件是否存在或格式是否正确。");
+                });
+        }
 
-          if (vocabWords.length > 0) {
-            const word = vocabWords[0];
-            document.getElementById("vocabWord").innerText = word;
-            document.getElementById("vocabMeaning").innerText = "点击下方按钮显示中文意思";
-          } else {
-            document.getElementById("vocabWord").innerText = "-";
-            document.getElementById("vocabMeaning").innerText = "该词库没有单词。";
-          }
-        })
-        .catch(error => {
-          console.error("加载词库失败:", error);
-          alert("加载词库失败，请检查文件是否存在或格式是否正确。");
-        });
-    }
+        function loadWordFileList() {
+            fetch("words/index.json")
+                .then(res => res.json())
+                .then(files => {
+                    const select = document.getElementById("vocabSelect");
+                    files.forEach(file => {
+                        const option = document.createElement("option");
+                        option.value = file;
+                        option.innerText = file.replace('.json', '');
+                        select.appendChild(option);
+                    });
+                })
+                .catch(() => {
+                    alert("无法读取词库列表 index.json。请确认文件存在并格式正确。");
+                });
+        }
 
-    function loadWordFileList() {
-      fetch("words/index.json")
-        .then(res => res.json())
-        .then(files => {
-          const select = document.getElementById("vocabSelect");
-          files.forEach(file => {
-            const option = document.createElement("option");
-            option.value = file;
-            option.innerText = file.replace('.json', '');
-            select.appendChild(option);
-          });
-        })
-        .catch(() => {
-          alert("无法读取词库列表 index.json。请确认文件存在并格式正确。");
-        });
-    }
-
-    window.onload = loadWordFileList;
-  </script>
+        window.onload = loadWordFileList;
+    </script>
 </body>
 
 </html>
