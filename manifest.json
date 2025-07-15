@@ -1,0 +1,21 @@
+{
+  "name": "肥牛老师课堂随机抽查",
+  "short_name": "随机抽查",
+  "description": "肥牛老师课堂随机抽查工具，支持离线使用。",
+  "start_url": "/", 
+  "display": "standalone", 
+  "background_color": "#f0f0f0", 
+  "theme_color": "#333333", 
+  "icons": [
+    {
+      "src": "lbxx1.png", 
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "lbxx1.png", 
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
