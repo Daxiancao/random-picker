@@ -1,14 +1,15 @@
-const CACHE_NAME = 'my-classroom-app-cache-v3'; // 缓存版本号，每次您更新网站文件时，建议更改此号
+const CACHE_NAME = 'my-classroom-app-cache-v4'; // 缓存版本号，每次您更新网站文件时，建议更改此号
 const urlsToCache = [
-  '/', // 应用程序的起始路径，通常指向 index.html
-  'index.html', // 主页面文件
-  'background.jpg', // 背景图片
-  'manifest.json', // PWA 清单文件
-  'lbxx1.png', // PWA 图标
-  'words/index.json', // 词库列表文件 (位于 words 目录下)
+  '/random-picker/', // 你的 PWA 的基础 URL
+  '/random-picker/index.html',
+  '/random-picker/background.jpg',
+  '/random-picker/manifest.json',
+  '/random-picker/lbxx1.png',
+  '/random-picker/service-worker.js', // Service Worker 自身
+  '/random-picker/words/index.json',
   // 您可以在这里预缓存其他您希望在首次加载时就离线可用的具体词库文件，例如：
-  'words/688_第一天.json',
-  'words/unit1_happy_holiday.json'
+  '/random-picker/words/688_第一天.json',
+  '/random-picker/words/unit1_happy_holiday.json'
   // 如果词库文件很多或经常更新，可以依赖 fetch 事件的动态缓存
 ];
 
