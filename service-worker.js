@@ -1,4 +1,4 @@
-const CACHE_NAME = 'my-classroom-app-cache-v1'; // 缓存版本号，每次您更新网站文件时，建议更改此号
+const CACHE_NAME = 'my-classroom-app-cache-v2'; // 缓存版本号，每次您更新网站文件时，建议更改此号
 const urlsToCache = [
   '/', // 应用程序的起始路径，通常指向 index.html
   'index.html', // 主页面文件
